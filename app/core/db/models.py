@@ -14,16 +14,11 @@ class Device(Base):
     """Модель устройства."""
     type_ = Column(String(100), nullable=False)
     description = Column(Text,)
-    # batteries = relationship('Battery', cascade='delete')
     user_id = Column(Integer, ForeignKey(
         'user.id',
         name='fk_device_user_id_user',
     ))
-    batteries = relationship(
-        "Battery",
-        secondary="devicebattery",
-        back_populates='devices',
-    )
+    connections = relationship('Connection', cascade='delete')
 
     def __repr__(self):
         return (
@@ -35,15 +30,16 @@ class Battery(Base):
     """Модель аккумулятора."""
     brand = Column(String(100), nullable=False)
     # code = Column(String(100), nullable=False)
-    devices = relationship(
-        "Device",
-        secondary="devicebattery",
-        back_populates='batteries',
-    )
+    # devices = relationship(
+    #     "Device",
+    #     secondary="connection",
+    #     back_populates='batteries',
+    # )
     user_id = Column(Integer, ForeignKey(
         'user.id',
         name='fk_battery_user_id_user',
     ))
+    connections = relationship('Connection', cascade='delete')
 
     # def __repr__(self):
     #     return (
@@ -51,7 +47,17 @@ class Battery(Base):
     #     )
 
 
-class DeviceBattery(Base):
+class Connection(Base):
     """Модель аккумулятора, подключенного к устройству."""
-    device_id = Column(ForeignKey('device.id'), primary_key=True)
-    battery_id = Column(ForeignKey('battery.id'), primary_key=True)
+    device_id = Column(Integer, ForeignKey(
+        'device.id',
+        name='fk_device_connection_id_connection',
+    ))
+    battery_id = Column(Integer, ForeignKey(
+        'battery.id',
+        name='fk_battery_connection_id_connection',
+    ))
+    user_id = Column(Integer, ForeignKey(
+        'user.id',
+        name='fk_connection_user_id_user',
+    ))

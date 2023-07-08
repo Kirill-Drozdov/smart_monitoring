@@ -5,8 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db.db import get_async_session
 from app.core.user import current_user, current_superuser
+from app.core.db.crud.battery import battery_crud
 from app.core.db.crud.device import device_crud
 from app.core.db.models import User
+from app.api.schemas.connection import (
+    ConnectionCreate,
+    ConnectionDB,
+)
 from app.api.schemas.device import (
     DeviceCreate,
     DeviceDB,
@@ -138,3 +143,33 @@ async def remove_device(
     return await device_crud.remove(
         device, session
     )
+
+
+# @device_router.post(
+#     '/{device_id}/connect',
+#     response_model=ConnectionDB,
+#     response_model_exclude_none=True,
+#     status_code=HTTPStatus.OK,
+#     # summary="Обновить устройство по id",
+#     # response_description="Данные обновленного устройства",
+# )
+# async def create_battery_connection(
+#         device_id: int,
+#         connection: ConnectionCreate,
+#         # user: User = Depends(current_user),
+#         session: AsyncSession = Depends(get_async_session),
+# ):
+#     """Обновить устройство.
+
+#     - **type_**: тип
+#     - **description**: описание
+#     """
+#     device = await device_crud.get(
+#         device_id, session
+#     )
+#     battery = await battery_crud.get(
+#         connection.battery_id, session
+#     )
+#     return await device_crud.create_connection(
+#         device.id, connection, session
+#     )
