@@ -24,8 +24,8 @@ battery_router = APIRouter()
     '/',
     response_model=BatteryDB,
     status_code=HTTPStatus.CREATED,
-    summary="Создать аккумулятор",
-    response_description="Информация о созданном аккумуляторе",
+    summary='Создать аккумулятор',
+    response_description='Информация о созданном аккумуляторе',
 )
 async def create_new_battery(
         battery: BatteryCreate,
@@ -43,8 +43,8 @@ async def create_new_battery(
     '/',
     response_model=list[BatteryDB],
     status_code=HTTPStatus.OK,
-    summary="Смотреть все аккумуляторы",
-    response_description="Список всех аккумуляторов",
+    summary='Смотреть все аккумуляторы',
+    response_description='Список всех аккумуляторов',
 )
 async def get_all_batteries(
         session: AsyncSession = Depends(get_async_session),
@@ -62,8 +62,8 @@ async def get_all_batteries(
     '/{battery_id}',
     response_model=BatteryDB,
     status_code=HTTPStatus.OK,
-    summary="Смотреть аккумулятор по id",
-    response_description="Данные аккумулятора",
+    summary='Смотреть аккумулятор по id',
+    response_description='Данные аккумулятора',
 
 )
 async def get_battery(
@@ -86,8 +86,8 @@ async def get_battery(
     response_model=BatteryDB,
     response_model_exclude_none=True,
     status_code=HTTPStatus.OK,
-    summary="Обновить аккумулятор по id",
-    response_description="Данные обновленного аккумулятора",
+    summary='Обновить аккумулятор по id',
+    response_description='Данные обновленного аккумулятора',
 )
 async def partially_update_battery(
         battery_id: int,
@@ -112,8 +112,8 @@ async def partially_update_battery(
     response_model=BatteryDB,
     response_model_exclude_none=True,
     status_code=HTTPStatus.OK,
-    summary="Удалить аккумулятор по id",
-    response_description="Данные удаленного аккумулятор",
+    summary='Удалить аккумулятор по id',
+    response_description='Данные удаленного аккумулятор',
 )
 async def remove_battery(
         battery_id: int,

@@ -5,13 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db.db import get_async_session
 from app.core.user import current_user, current_superuser
-from app.core.db.crud.battery import battery_crud
 from app.core.db.crud.device import device_crud
 from app.core.db.models import User
-from app.api.schemas.connection import (
-    ConnectionCreate,
-    ConnectionDB,
-)
 from app.api.schemas.device import (
     DeviceCreate,
     DeviceDB,
@@ -29,8 +24,8 @@ device_router = APIRouter()
     '/',
     response_model=DeviceDB,
     status_code=HTTPStatus.CREATED,
-    summary="Создать устройство",
-    response_description="Информация о созданном устройстве",
+    summary='Создать устройство',
+    response_description='Информация о созданном устройстве',
 )
 async def create_new_device(
         device: DeviceCreate,
@@ -49,8 +44,8 @@ async def create_new_device(
     '/',
     response_model=list[DeviceDB],
     status_code=HTTPStatus.OK,
-    summary="Смотреть все устройства",
-    response_description="Список всех устройств",
+    summary='Смотреть все устройства',
+    response_description='Список всех устройств',
 )
 async def get_all_devices(
         session: AsyncSession = Depends(get_async_session),
@@ -69,8 +64,8 @@ async def get_all_devices(
     '/{device_id}',
     response_model=DeviceDB,
     status_code=HTTPStatus.OK,
-    summary="Смотреть устройство по id",
-    response_description="Данные устройства",
+    summary='Смотреть устройство по id',
+    response_description='Данные устройства',
 
 )
 async def get_device(
@@ -94,8 +89,8 @@ async def get_device(
     response_model=DeviceDB,
     response_model_exclude_none=True,
     status_code=HTTPStatus.OK,
-    summary="Обновить устройство по id",
-    response_description="Данные обновленного устройства",
+    summary='Обновить устройство по id',
+    response_description='Данные обновленного устройства',
 )
 async def partially_update_device(
         device_id: int,
@@ -121,8 +116,8 @@ async def partially_update_device(
     response_model=DeviceDB,
     response_model_exclude_none=True,
     status_code=HTTPStatus.OK,
-    summary="Удалить устройство по id",
-    response_description="Данные удаленного устройства",
+    summary='Удалить устройство по id',
+    response_description='Данные удаленного устройства',
 )
 async def remove_device(
         device_id: int,
@@ -143,33 +138,3 @@ async def remove_device(
     return await device_crud.remove(
         device, session
     )
-
-
-# @device_router.post(
-#     '/{device_id}/connect',
-#     response_model=ConnectionDB,
-#     response_model_exclude_none=True,
-#     status_code=HTTPStatus.OK,
-#     # summary="Обновить устройство по id",
-#     # response_description="Данные обновленного устройства",
-# )
-# async def create_battery_connection(
-#         device_id: int,
-#         connection: ConnectionCreate,
-#         # user: User = Depends(current_user),
-#         session: AsyncSession = Depends(get_async_session),
-# ):
-#     """Обновить устройство.
-
-#     - **type_**: тип
-#     - **description**: описание
-#     """
-#     device = await device_crud.get(
-#         device_id, session
-#     )
-#     battery = await battery_crud.get(
-#         connection.battery_id, session
-#     )
-#     return await device_crud.create_connection(
-#         device.id, connection, session
-#     )

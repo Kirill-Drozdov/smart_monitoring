@@ -29,26 +29,20 @@ class Device(Base):
 class Battery(Base):
     """Модель аккумулятора."""
     brand = Column(String(100), nullable=False)
-    # code = Column(String(100), nullable=False)
-    # devices = relationship(
-    #     "Device",
-    #     secondary="connection",
-    #     back_populates='batteries',
-    # )
     user_id = Column(Integer, ForeignKey(
         'user.id',
         name='fk_battery_user_id_user',
     ))
     connections = relationship('Connection', cascade='delete')
 
-    # def __repr__(self):
-    #     return (
-    #         f'Аккумулятор: {self.brand} - {self.code}'
-    #     )
+    def __repr__(self):
+        return (
+            f'Аккумулятор: {self.brand}'
+        )
 
 
 class Connection(Base):
-    """Модель аккумулятора, подключенного к устройству."""
+    """Модель соединения аккумулятора и устройства."""
     device_id = Column(Integer, ForeignKey(
         'device.id',
         name='fk_device_connection_id_connection',

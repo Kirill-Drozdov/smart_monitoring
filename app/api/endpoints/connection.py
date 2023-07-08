@@ -5,15 +5,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db.db import get_async_session
 from app.core.user import current_user
+from app.core.db.crud.battery import battery_crud
 from app.core.db.crud.connection import connection_crud
+from app.core.db.crud.device import device_crud
 from app.core.db.models import User
 from app.api.schemas.connection import (
     ConnectionCreate,
     ConnectionDB,
 )
-# from app.core.validators import (
-#     check_user_update_delete_rights,
-# )
+from app.core.validators import (
+    check_batteries_limit,
+    check_battery_is_not_already_connected,
+)
 
 
 connection_router = APIRouter()
@@ -23,8 +26,8 @@ connection_router = APIRouter()
     '/',
     response_model=ConnectionDB,
     status_code=HTTPStatus.CREATED,
-    summary="Установить соединение",
-    response_description="Информация о созданном соединении",
+    summary='Установить соединение',
+    response_description='Информация о созданном соединении',
 )
 async def create_new_connection(
         connection: ConnectionCreate,
@@ -36,6 +39,14 @@ async def create_new_connection(
     - **device_id**: внешний ключ устройства
     - **battery_id**: внешний ключ аккумулятора
     """
+    # Проверим, что устройство и аккумулятор есть в БД
+    await device_crud.get(connection.device_id, session)
+    await battery_crud.get(connection.battery_id, session)
+    await check_battery_is_not_already_connected(
+        connection,
+        session,
+    )
+    await check_batteries_limit(connection.device_id, session)
     return await connection_crud.create(connection, user, session)
 
 
@@ -43,8 +54,8 @@ async def create_new_connection(
     '/',
     response_model=list[ConnectionDB],
     status_code=HTTPStatus.OK,
-    summary="Смотреть все соединения",
-    response_description="Список всех соединений",
+    summary='Смотреть все соединения',
+    response_description='Список всех соединений',
 )
 async def get_all_connections(
         session: AsyncSession = Depends(get_async_session),
@@ -63,8 +74,8 @@ async def get_all_connections(
     '/{connection_id}',
     response_model=ConnectionDB,
     status_code=HTTPStatus.OK,
-    summary="Удалить соединение по id",
-    response_description="Данные удаленного соединения",
+    summary='Удалить соединение по id',
+    response_description='Данные удаленного соединения',
 )
 async def remove_connection(
         connection_id: int,
