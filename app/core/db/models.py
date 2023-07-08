@@ -1,7 +1,6 @@
-import enum
-
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from sqlalchemy import Column, Enum, ForeignKey, String, Text, Integer
+from sqlalchemy import Column, ForeignKey, String, Text, Integer  # noqa
+from sqlalchemy.orm import relationship
 
 from app.core.db.db import Base
 
@@ -11,31 +10,53 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     pass
 
 
-class TemplateModel(Base):
-    """Модель-шаблон."""
-    class Kind(str, enum.Enum):
-        """Вид объявления."""
-
-        BUYING = "Покупка"
-        SELLING = "Продажа"
-        SERVICE = "Услуга"
-
-    title = Column(String(100), nullable=False)
-    description = Column(Text, unique=True, nullable=False)
-    kind = Column(
-        Enum(
-            Kind,
-            name="kind_of_service",
-        ),
-        nullable=False,
+class Device(Base):
+    """Модель устройства."""
+    type_ = Column(String(100), nullable=False)
+    description = Column(Text,)
+    # batteries = relationship('Battery', cascade='delete')
+    # user_id = Column(Integer, ForeignKey(
+    #     'user.id',
+    #     name='fk_device_user_id_user',
+    # ))
+    batteries = relationship(
+        "Battery",
+        secondary="devicebattery",
+        back_populates='devices',
     )
-    price = Column(Integer, nullable=False)
-    user_id = Column(Integer, ForeignKey(
-        'user.id',
-        name='fk_advert_user_id_user',
-    ))
 
     def __repr__(self):
         return (
-            f'Объявление №{self.id} - {self.title}'
+            f'Устройство: {self.type_}'
         )
+
+
+class Battery(Base):
+    """Модель аккумулятора."""
+    # code = Column(String(100), nullable=False)
+    brand = Column(String(100), nullable=False)
+    devices = relationship(
+        "Device",
+        secondary="devicebattery",
+        back_populates='batteries',
+    )
+    # type_ = Column(String(100),)
+    # power = Column(Integer, nullable=False)
+    # voltage = Column(Integer, nullable=False)
+    # capacity = Column(Integer, nullable=False)
+    # description = Column(Text,)
+    # user_id = Column(Integer, ForeignKey(
+    #     'user.id',
+    #     name='fk_battery_user_id_user',
+    # ))
+
+    # def __repr__(self):
+    #     return (
+    #         f'Аккумулятор: {self.brand} - {self.code}'
+    #     )
+
+
+class DeviceBattery(Base):
+    """Модель аккумулятора, подключенного к устройству."""
+    device_id = Column(ForeignKey('device.id'), primary_key=True)
+    battery_id = Column(ForeignKey('battery.id'), primary_key=True)
