@@ -8,6 +8,7 @@ from app.core.user import current_user, current_superuser
 from app.core.db.crud.connection import connection_crud
 from app.core.db.crud.device import device_crud
 from app.core.db.models import User
+from app.api.schemas.battery import BatteryDB
 from app.api.schemas.connection import ConnectionDB
 from app.api.schemas.device import (
     DeviceCreate,
@@ -139,6 +140,30 @@ async def remove_device(
     await check_user_update_delete_rights(device, user)
     return await device_crud.remove(
         device, session
+    )
+
+
+@device_router.get(
+    '/{device_id}/batteries',
+    response_model=list[BatteryDB],
+    status_code=HTTPStatus.OK,
+    summary='Смотреть подключенные аккумуляторы',
+    response_description='Данные подключенных аккумуляторов',
+
+)
+async def get_connected_batteries(
+        device_id: int,
+        session: AsyncSession = Depends(get_async_session),
+):
+    """Показать данные устройства.
+
+    - **type_**: тип
+    - **description**: описание
+    - **id**: уникальный идентификатор устройства
+    - **user_id**: внешний ключ администратора, создавшего устройство
+    """
+    return await device_crud.get_connected_batteries(
+        device_id, session
     )
 
 

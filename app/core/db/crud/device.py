@@ -1,29 +1,31 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-# from sqlalchemy import select
+from sqlalchemy import select
 
-from app.api.schemas.connection import ConnectionDB, ConnectionCreate
+from app.api.schemas.battery import BatteryDB
 from app.core.db.crud.base import CRUDBase
-from app.core.db.models import Device, Connection
+from app.core.db.models import Device, Connection, Battery
 
 
 class CRUDDevice(CRUDBase):
-    async def create_connection(
+    async def get_connected_batteries(
         self,
         device_id: int,
-        connection: ConnectionCreate,
         session: AsyncSession,
-    ) -> ConnectionDB:
-        """Получить все жалобы на объявление."""
-        obj_in_data = connection.dict()
-        connection = Connection(
-            device_id=device_id,
-            **obj_in_data,
-
+    ) -> list[BatteryDB]:
+        """Получить все подключенные аккумуляторы."""
+        battery_ids = await session.execute(
+            select(Connection.battery_id).where(
+                Connection.device_id == device_id
+            )
         )
-        session.add(connection)
-        await session.commit()
-        await session.refresh(connection)
-        return connection
+        battery_ids = battery_ids.scalars().all()
+        batteries = await session.execute(
+            select(Battery).where(
+                Battery.id.in_(battery_ids)
+            )
+        )
+        batteries = batteries.scalars().all()
+        return batteries
 
 
 device_crud = CRUDDevice(Device)
