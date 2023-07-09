@@ -5,8 +5,9 @@ from pydantic import BaseSettings, EmailStr
 
 class Settings(BaseSettings):
     """Настройки проекта."""
-    APP_TITLE: str = 'Title'
-    APP_DESCRIPTION: str = 'Description'
+    APP_TITLE: str = 'SmartMonitoring'
+    APP_DESCRIPTION: str = ('Сервис для удобного мониторинга'
+                            ' работы аккумуляторов')
     SECRET: str = 'letspythonizetheworld:)'
     FIRST_SUPERUSER_EMAIL: EmailStr = 'admin@ya.ru'
     FIRST_SUPERUSER_PASSWORD: Optional[str] = None

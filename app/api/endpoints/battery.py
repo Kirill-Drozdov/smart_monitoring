@@ -6,12 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db.db import get_async_session
 from app.core.user import current_user, current_superuser
 from app.core.db.crud.battery import battery_crud
+from app.core.db.crud.connection import connection_crud
 from app.core.db.models import User
 from app.api.schemas.battery import (
     BatteryCreate,
     BatteryDB,
     BatteryUpdate,
 )
+from app.api.schemas.connection import ConnectionDB
 from app.core.validators import (
     check_user_update_delete_rights,
 )
@@ -77,7 +79,7 @@ async def get_battery(
     - **user_id**: внешний ключ администратора, создавшего аккумулятор
     """
     return await battery_crud.get(
-        battery_id, session
+        battery_id, session,
     )
 
 
@@ -102,8 +104,12 @@ async def partially_update_battery(
     battery = await battery_crud.get(
         battery_id, session
     )
+    await check_user_update_delete_rights(
+        battery,
+        user,
+    )
     return await battery_crud.update(
-        battery, obj_in, session
+        battery, obj_in, session,
     )
 
 
@@ -132,4 +138,32 @@ async def remove_battery(
     await check_user_update_delete_rights(battery, user)
     return await battery_crud.remove(
         battery, session
+    )
+
+
+@battery_router.delete(
+    '/{battery_id}/disconnect',
+    response_model=ConnectionDB,
+    status_code=HTTPStatus.OK,
+    summary='Отсоединить аккумулятор',
+    response_description='Данные удаленного соединения',
+)
+async def disconnect_battery(
+        battery_id: int,
+        user: User = Depends(current_user),
+        session: AsyncSession = Depends(get_async_session),
+):
+    """Отсоединить аккумулятор.
+
+    - **device_id**: внешний ключ устройства
+    - **battery_id**: внешний ключ аккумулятора
+    - **id**: уникальный идентификатор соединения
+    - **user_id**: внешний ключ пользователя, установившего соединение
+    """
+    connection = await connection_crud.get_connection_by_battery_id(
+        battery_id, session
+    )
+    await check_user_update_delete_rights(connection, user)
+    return await connection_crud.remove(
+        connection, session
     )

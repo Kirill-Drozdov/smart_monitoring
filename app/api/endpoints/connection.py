@@ -16,6 +16,7 @@ from app.api.schemas.connection import (
 from app.core.validators import (
     check_batteries_limit,
     check_battery_is_not_already_connected,
+    check_user_update_delete_rights,
 )
 
 
@@ -92,7 +93,7 @@ async def remove_connection(
     connection = await connection_crud.get(
         connection_id, session
     )
-    # await check_user_update_delete_rights(connection, user)
+    await check_user_update_delete_rights(connection, user)
     return await connection_crud.remove(
         connection, session
     )
