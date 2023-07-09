@@ -155,12 +155,11 @@ async def get_connected_batteries(
         device_id: int,
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Показать данные устройства.
+    """Показать подключенные аккумуляторы.
 
-    - **type_**: тип
-    - **description**: описание
-    - **id**: уникальный идентификатор устройства
-    - **user_id**: внешний ключ администратора, создавшего устройство
+    - **brand**: фирма
+    - **id**: уникальный идентификатор аккумулятора
+    - **user_id**: внешний ключ администратора, создавшего аккумулятор
     """
     return await device_crud.get_connected_batteries(
         device_id, session
