@@ -1,3 +1,6 @@
+from http import HTTPStatus
+
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -17,7 +20,14 @@ class CRUDConnection(CRUDBase):
                 Connection.battery_id == battery_id
             )
         )
-        return connection.scalars().first()
+        connection = connection.scalars().first()
+        if connection is None:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail=(f'Аккумулятора с id={battery_id} нет в базе'
+                        ' или он не подключен ни к одному из устройств!')
+            )
+        return connection
 
 
 connection_crud = CRUDConnection(Connection)

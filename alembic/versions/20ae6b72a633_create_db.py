@@ -1,8 +1,8 @@
-"""Create DB
+"""Create db
 
-Revision ID: edaa5466c722
+Revision ID: 20ae6b72a633
 Revises: 
-Create Date: 2023-07-08 22:14:17.871800
+Create Date: 2023-07-09 10:39:35.231701
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'edaa5466c722'
+revision = '20ae6b72a633'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -48,6 +48,7 @@ def upgrade():
     sa.Column('device_id', sa.Integer(), nullable=True),
     sa.Column('battery_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('created_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=False),
     sa.ForeignKeyConstraint(['battery_id'], ['battery.id'], name='fk_battery_connection_id_connection'),
     sa.ForeignKeyConstraint(['device_id'], ['device.id'], name='fk_device_connection_id_connection'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], name='fk_connection_user_id_user'),

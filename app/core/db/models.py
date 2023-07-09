@@ -1,5 +1,13 @@
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from sqlalchemy import Column, ForeignKey, String, Text, Integer  # noqa
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    String,
+    Text,
+    Integer,
+    TIMESTAMP,
+    func
+)
 from sqlalchemy.orm import relationship
 
 from app.core.db.db import Base
@@ -55,3 +63,13 @@ class Connection(Base):
         'user.id',
         name='fk_connection_user_id_user',
     ))
+    created_at = Column(
+        TIMESTAMP,
+        server_default=func.current_timestamp(),
+        nullable=False,
+    )
+
+    def __repr__(self):
+        return (
+            f'Соединение: {self.id}'
+        )
