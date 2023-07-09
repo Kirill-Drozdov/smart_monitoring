@@ -5,8 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db.db import get_async_session
 from app.core.user import current_user, current_superuser
+from app.core.db.crud.connection import connection_crud
 from app.core.db.crud.device import device_crud
 from app.core.db.models import User
+from app.api.schemas.battery import BatteryDB
+from app.api.schemas.connection import ConnectionDB
 from app.api.schemas.device import (
     DeviceCreate,
     DeviceDB,
@@ -24,8 +27,8 @@ device_router = APIRouter()
     '/',
     response_model=DeviceDB,
     status_code=HTTPStatus.CREATED,
-    summary="Создать устройство",
-    response_description="Информация о созданном устройстве",
+    summary='Создать устройство',
+    response_description='Информация о созданном устройстве',
 )
 async def create_new_device(
         device: DeviceCreate,
@@ -44,8 +47,8 @@ async def create_new_device(
     '/',
     response_model=list[DeviceDB],
     status_code=HTTPStatus.OK,
-    summary="Смотреть все устройства",
-    response_description="Список всех устройств",
+    summary='Смотреть все устройства',
+    response_description='Список всех устройств',
 )
 async def get_all_devices(
         session: AsyncSession = Depends(get_async_session),
@@ -64,8 +67,8 @@ async def get_all_devices(
     '/{device_id}',
     response_model=DeviceDB,
     status_code=HTTPStatus.OK,
-    summary="Смотреть устройство по id",
-    response_description="Данные устройства",
+    summary='Смотреть устройство по id',
+    response_description='Данные устройства',
 
 )
 async def get_device(
@@ -89,8 +92,8 @@ async def get_device(
     response_model=DeviceDB,
     response_model_exclude_none=True,
     status_code=HTTPStatus.OK,
-    summary="Обновить устройство по id",
-    response_description="Данные обновленного устройства",
+    summary='Обновить устройство по id',
+    response_description='Данные обновленного устройства',
 )
 async def partially_update_device(
         device_id: int,
@@ -116,8 +119,8 @@ async def partially_update_device(
     response_model=DeviceDB,
     response_model_exclude_none=True,
     status_code=HTTPStatus.OK,
-    summary="Удалить устройство по id",
-    response_description="Данные удаленного устройства",
+    summary='Удалить устройство по id',
+    response_description='Данные удаленного устройства',
 )
 async def remove_device(
         device_id: int,
@@ -138,3 +141,58 @@ async def remove_device(
     return await device_crud.remove(
         device, session
     )
+
+
+@device_router.get(
+    '/{device_id}/batteries',
+    response_model=list[BatteryDB],
+    status_code=HTTPStatus.OK,
+    summary='Смотреть подключенные аккумуляторы',
+    response_description='Данные подключенных аккумуляторов',
+
+)
+async def get_connected_batteries(
+        device_id: int,
+        session: AsyncSession = Depends(get_async_session),
+):
+    """Показать данные устройства.
+
+    - **type_**: тип
+    - **description**: описание
+    - **id**: уникальный идентификатор устройства
+    - **user_id**: внешний ключ администратора, создавшего устройство
+    """
+    return await device_crud.get_connected_batteries(
+        device_id, session
+    )
+
+
+@device_router.delete(
+    '/{device_id}/disconnect',
+    response_model=list[ConnectionDB],
+    status_code=HTTPStatus.OK,
+    summary='Отсоединить устройство',
+    response_description='Данные удаленного соединения',
+)
+async def disconnect_device(
+        device_id: int,
+        session: AsyncSession = Depends(get_async_session),
+):
+    """Отсоединить устройство.
+
+    - **device_id**: внешний ключ устройства
+    - **battery_id**: внешний ключ аккумулятора
+    - **id**: уникальный идентификатор соединения
+    - **user_id**: внешний ключ пользователя, установившего соединение
+    - **created_at**: время установки соединение
+    """
+    connections = await connection_crud.get_connections_by_device_id(
+        device_id, session
+    )
+    response = []
+    for item in connections:
+        connection = await connection_crud.remove(
+            item, session
+        )
+        response.append(connection)
+    return response
