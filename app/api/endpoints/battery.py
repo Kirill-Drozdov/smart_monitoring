@@ -159,6 +159,7 @@ async def disconnect_battery(
     - **battery_id**: внешний ключ аккумулятора
     - **id**: уникальный идентификатор соединения
     - **user_id**: внешний ключ пользователя, установившего соединение
+    - **created_at**: время установки соединение
     """
     connection = await connection_crud.get_connection_by_battery_id(
         battery_id, session

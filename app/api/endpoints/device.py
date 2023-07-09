@@ -5,8 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db.db import get_async_session
 from app.core.user import current_user, current_superuser
+from app.core.db.crud.connection import connection_crud
 from app.core.db.crud.device import device_crud
 from app.core.db.models import User
+from app.api.schemas.connection import ConnectionDB
 from app.api.schemas.device import (
     DeviceCreate,
     DeviceDB,
@@ -138,3 +140,34 @@ async def remove_device(
     return await device_crud.remove(
         device, session
     )
+
+
+@device_router.delete(
+    '/{device_id}/disconnect',
+    response_model=list[ConnectionDB],
+    status_code=HTTPStatus.OK,
+    summary='Отсоединить устройство',
+    response_description='Данные удаленного соединения',
+)
+async def disconnect_device(
+        device_id: int,
+        session: AsyncSession = Depends(get_async_session),
+):
+    """Отсоединить устройство.
+
+    - **device_id**: внешний ключ устройства
+    - **battery_id**: внешний ключ аккумулятора
+    - **id**: уникальный идентификатор соединения
+    - **user_id**: внешний ключ пользователя, установившего соединение
+    - **created_at**: время установки соединение
+    """
+    connections = await connection_crud.get_connections_by_device_id(
+        device_id, session
+    )
+    response = []
+    for item in connections:
+        connection = await connection_crud.remove(
+            item, session
+        )
+        response.append(connection)
+    return response

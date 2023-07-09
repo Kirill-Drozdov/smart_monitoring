@@ -67,6 +67,7 @@ async def get_all_connections(
     - **battery_id**: внешний ключ аккумулятора
     - **id**: уникальный идентификатор соединения
     - **user_id**: внешний ключ пользователя, установившего соединение
+    - **created_at**: время установки соединение
     """
     return await connection_crud.get_multi(session)
 
@@ -89,6 +90,7 @@ async def remove_connection(
     - **battery_id**: внешний ключ аккумулятора
     - **id**: уникальный идентификатор соединения
     - **user_id**: внешний ключ пользователя, установившего соединение
+    - **created_at**: время установки соединение
     """
     connection = await connection_crud.get(
         connection_id, session

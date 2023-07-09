@@ -29,5 +29,25 @@ class CRUDConnection(CRUDBase):
             )
         return connection
 
+    async def get_connections_by_device_id(
+        self,
+        device_id: int,
+        session: AsyncSession,
+    ) -> Connection:
+        """Получить соединения по id устройства."""
+        connections = await session.execute(
+            select(Connection).where(
+                Connection.device_id == device_id
+            )
+        )
+        connections = connections.scalars().all()
+        if not connections:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail=(f'Устройство с id={device_id} нет в базе'
+                        ' или к нему не подключен ни один аккумулятор!')
+            )
+        return connections
+
 
 connection_crud = CRUDConnection(Connection)
