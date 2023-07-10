@@ -41,8 +41,8 @@ async def create_new_connection(
     - **battery_id**: внешний ключ аккумулятора
     """
     # Проверим, что устройство и аккумулятор есть в БД
-    await device_crud.get(connection.device_id, session)
-    await battery_crud.get(connection.battery_id, session)
+    await device_crud.is_exist(connection.device_id, session)
+    await battery_crud.is_exist(connection.battery_id, session)
     await check_battery_is_not_already_connected(
         connection,
         session,

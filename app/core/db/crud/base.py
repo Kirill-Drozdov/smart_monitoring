@@ -15,6 +15,32 @@ class CRUDBase:
     def __init__(self, model: Base):
         self.model = model
 
+    async def is_exist(
+            self,
+            obj_id: int,
+            session: AsyncSession,
+    ):
+        """
+        Проверяет, существует ли объект в БД.
+        Если объект не найден, бросает ошибку.
+        """
+        exists_criteria = (
+            select(self.model).where(
+                self.model.id == obj_id
+            ).exists()
+        )
+        db_obj_exists = await session.execute(
+            select(True).where(
+                exists_criteria
+            )
+        )
+        db_obj_exists = db_obj_exists.scalars().first()
+        if not db_obj_exists:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail=f'Объект {self.model.__tablename__.title()} не найден!'
+            )
+
     async def get(
             self,
             obj_id: int,
@@ -22,20 +48,14 @@ class CRUDBase:
     ):
         """
         Возвращает объект по id.
-        Если объект не найден, бросает ошибку.
         """
+        await self.is_exist(obj_id, session)
         db_obj = await session.execute(
             select(self.model).where(
                 self.model.id == obj_id
             )
         )
-        db_obj = db_obj.scalars().first()
-        if db_obj is None:
-            raise HTTPException(
-                status_code=HTTPStatus.NOT_FOUND,
-                detail=f'Объект {self.model.__tablename__.title()} не найден!'
-            )
-        return db_obj
+        return db_obj.scalars().first()
 
     async def get_multi(
             self,

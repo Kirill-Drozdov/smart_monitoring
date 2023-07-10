@@ -24,9 +24,9 @@ class CRUDDevice(CRUDBase):
         battery_ids = battery_ids.scalars().all()
         if not battery_ids:
             raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
-            detail='К этому устройству не подключен ни один аккумулятор!',
-        )
+                status_code=HTTPStatus.NOT_FOUND,
+                detail='К этому устройству не подключен ни один аккумулятор!',
+            )
         batteries = await session.execute(
             select(Battery).where(
                 Battery.id.in_(battery_ids)

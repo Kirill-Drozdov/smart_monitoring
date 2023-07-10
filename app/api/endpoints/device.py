@@ -161,6 +161,7 @@ async def get_connected_batteries(
     - **id**: уникальный идентификатор аккумулятора
     - **user_id**: внешний ключ администратора, создавшего аккумулятор
     """
+    await device_crud.is_exist(device_id, session)
     return await device_crud.get_connected_batteries(
         device_id, session
     )
